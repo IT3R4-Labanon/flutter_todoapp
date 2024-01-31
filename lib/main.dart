@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/pages/home_page.dart';
 
-void main() {
+        void main() {
   runApp(const MyApp());
 }
 
@@ -17,6 +17,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'todo list'),
-    );
+    );  
   }
 }
