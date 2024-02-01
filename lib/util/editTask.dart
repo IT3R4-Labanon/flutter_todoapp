@@ -14,6 +14,30 @@ class editTask extends StatelessWidget {
 //create modal for updating task
   @override
   Widget build(BuildContext context) {
-    return AlertDialog();
+    return AlertDialog(
+        content: SizedBox(  
+      height: 120,
+      child: Column(children: [
+        TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), hintText: "Add new todo"
+                ),
+                ),
+                
+                
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            //save btn
+            AddBtn(text: "save", onPressed: onSave),
+
+            const SizedBox(width: 8),
+            //cancel btn
+            AddBtn(text: "cancel", onPressed: onCancel)
+          ],
+        ),
+      ]),
+    ));
   }
 }

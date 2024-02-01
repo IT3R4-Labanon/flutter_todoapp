@@ -15,13 +15,14 @@ class DialogBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-        content: SizedBox(  
+        content: SizedBox(
       height: 120,
       child: Column(children: [
         TextField(
-            controller: controller,
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(), hintText: "Add new todo")),
+          controller: controller,
+          decoration: const InputDecoration(
+              border: OutlineInputBorder(), hintText: "Todos "),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [

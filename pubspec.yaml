@@ -38,6 +38,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_slidable: ^1.2.0
 
+  email_validator: '^2.1.16'
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
