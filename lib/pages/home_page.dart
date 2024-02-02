@@ -22,7 +22,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     if (_dataBox.get("TODOLIST") == null) {
-      db.initializeList();
+      db.initializeList();  
       db.updateDataBase();
     } else {
       db.loadDataBase();
@@ -85,7 +85,6 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
   }
-
   //delete task
   // void deleteTask(int index) {
   //   setState(() {
