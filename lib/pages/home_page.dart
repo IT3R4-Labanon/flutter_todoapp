@@ -21,7 +21,6 @@ class _MyHomePageState extends State<MyHomePage> {
 //list of  task
   List toDoList = [
     ['KaHero@sample.com', false],
-    ['DO@sample.com', false],
   ];
 
   //check box
@@ -47,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
         toDoList.add([_controller.text, false]);
       });
     } else {
-      final snackbar = SnackBar(content: Text('Invalid email'));
+      const snackbar = SnackBar(content: Text('Invalid email'));
 
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
     }
@@ -82,20 +81,20 @@ class _MyHomePageState extends State<MyHomePage> {
         toDoList.removeAt(index);
       });
     } else {
-      final snackbar = SnackBar(content: Text('Unable to delete'));
+      const snackbar = SnackBar(content: Text('Unable to delete odd indices'));
 
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
     }
   }
 
   //editTask
-  void editTask() {
+  void editTask(int index) {
     showDialog(
       context: context,
       builder: (context) {
         return DialogBox(
           controller: _controller,
-          onSave: upDate,
+          onSave: () => upDate(index),
           onCancel: () => Navigator.of(context).pop(),
         );
       },
@@ -103,15 +102,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 //save the new task and remove old task
-  void upDate() {
+  void upDate(int index) {
     setState(() {
-      toDoList.add([_controller.text, false]);
+      toDoList[index] = [_controller.text, false];
     });
-    removeTask;
     Navigator.of(context).pop();
   }
 
-  //delete task
+  // remove the old task
   void removeTask(int index) {
     setState(() {
       deleteTask(index);
@@ -133,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
           itemCount: toDoList.length,
           itemBuilder: (context, index) {
             return ToDoTile(
-              onTap: editTask,
+              onTap: () => editTask(index),
               taskName: toDoList[index][0],
               taskCompleted: toDoList[index][1],
               onChanged: (value) => checkBoxChanged(value, index),

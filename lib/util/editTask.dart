@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter_todo_app/util/addBtn.dart";
 
 class editTask extends StatelessWidget {
   final controller;
@@ -15,26 +16,23 @@ class editTask extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-        content: SizedBox(  
+        content: SizedBox(
       height: 120,
       child: Column(children: [
         TextField(
-            controller: controller,
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(), hintText: "Add new todo"
-                ),
-                ),
-                
-                
+          controller: controller,
+          decoration: const InputDecoration(
+              border: OutlineInputBorder(), hintText: "Add new todo"),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             //save btn
-            AddBtn(text: "save", onPressed: onSave),
+            addBtn(text: "save", onPressed: update),
 
             const SizedBox(width: 8),
             //cancel btn
-            AddBtn(text: "cancel", onPressed: onCancel)
+            addBtn(text: "cancel", onPressed: cancel)
           ],
         ),
       ]),
