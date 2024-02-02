@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/pages/home_page.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-        void main() {
+Future<void> main() async {
+  //init Hive
+  await Hive.initFlutter();
+
+  //open a box
+  var box = await Hive.openBox('dataBox');
+
   runApp(const MyApp());
 }
 
@@ -17,6 +24,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'todo list'),
-    );  
+    );
   }
 }

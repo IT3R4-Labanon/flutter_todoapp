@@ -32,14 +32,14 @@ class ToDoTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12)),
           ],
         ),
-        child: InkWell(
+        child: GestureDetector(
           onLongPress: onTap,
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
                 color: Colors.blue, borderRadius: BorderRadius.circular(12)),
             child: Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Row(children: [
                   //check box
                   Checkbox(

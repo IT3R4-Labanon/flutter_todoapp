@@ -1,9 +1,9 @@
-import 'dart:js_util';
-
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/datas/database.dart';
 import 'package:flutter_todo_app/util/dialog_box.dart';
 import 'package:flutter_todo_app/util/todo_tile.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -15,19 +15,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  //local storage
+  final _dataBox = Hive.box('dataBox');
+  ToDoDataBase db = ToDoDataBase();
+
+  @override
+  void initState() {
+    if (_dataBox.get("TODOLIST") == null) {
+      db.initializeList();
+      db.updateDataBase();
+    } else {
+      db.loadDataBase();
+    }
+
+    super.initState();
+  }
+
   //text controller
   final _controller = TextEditingController();
-
-//list of  task
-  List toDoList = [
-    ['KaHero@sample.com', false],
-  ];
 
   //check box
   void checkBoxChanged(bool? value, int index) {
     setState(() {
-      toDoList[index][1] = !toDoList[index][1];
+      db.toDoList[index][1] = !db.toDoList[index][1];
+      _controller.clear();
     });
+
+    db.updateDataBase();
   }
 
 //save task no validation
@@ -43,14 +57,17 @@ class _MyHomePageState extends State<MyHomePage> {
     bool isVAlid = EmailValidator.validate(_controller.text);
     if (isVAlid) {
       setState(() {
-        toDoList.add([_controller.text, false]);
+        db.toDoList.add([_controller.text, false]);
       });
     } else {
       const snackbar = SnackBar(content: Text('Invalid email'));
 
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
     }
+
     Navigator.of(context).pop();
+    _controller.clear();
+    db.updateDataBase();
   }
 
 //new task
@@ -59,10 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (context) {
         return DialogBox(
-          controller: _controller,
-          onSave: saveNewTask,
-          onCancel: () => Navigator.of(context).pop(),
-        );
+            controller: _controller,
+            onSave: saveNewTask,
+            onCancel: () {
+              Navigator.of(context).pop();
+              _controller.clear();
+            });
       },
     );
   }
@@ -78,13 +97,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void deleteTask(int index) {
     if (index % 2 != 0) {
       setState(() {
-        toDoList.removeAt(index);
+        db.toDoList.removeAt(index);
       });
     } else {
       const snackbar = SnackBar(content: Text('Unable to delete odd indices'));
 
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
     }
+    db.updateDataBase();
   }
 
   //editTask
@@ -103,17 +123,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
 //save the new task and remove old task
   void upDate(int index) {
-    setState(() {
-      toDoList[index] = [_controller.text, false];
-    });
-    Navigator.of(context).pop();
-  }
+    bool isVAlid = EmailValidator.validate(_controller.text);
+    if (isVAlid) {
+      setState(() {
+        db.toDoList[index] = [_controller.text, false];
+      });
+      Navigator.of(context).pop();
+    } else {
+      const snackbar = SnackBar(content: Text('invalid email'));
 
-  // remove the old task
-  void removeTask(int index) {
-    setState(() {
-      deleteTask(index);
-    });
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+    }
+    db.updateDataBase();
   }
 
   @override
@@ -128,12 +149,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ),
       body: ListView.builder(
-          itemCount: toDoList.length,
+          itemCount: db.toDoList.length,
           itemBuilder: (context, index) {
             return ToDoTile(
               onTap: () => editTask(index),
-              taskName: toDoList[index][0],
-              taskCompleted: toDoList[index][1],
+              taskName: db.toDoList[index][0],
+              taskCompleted: db.toDoList[index][1],
               onChanged: (value) => checkBoxChanged(value, index),
               deleteTask: (context) => deleteTask(index),
             );
