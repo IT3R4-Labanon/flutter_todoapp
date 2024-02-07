@@ -6,7 +6,7 @@ class ToDoDataBase {
   //box reference
   final _dataBox = Hive.box('dataBox');
 
-  //init data
+  //init data  
   void initializeList() {
     toDoList = [
       ['todo@sample.com', false],
