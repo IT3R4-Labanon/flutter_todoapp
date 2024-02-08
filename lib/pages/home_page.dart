@@ -1,4 +1,3 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_app/data/firestore.dart';
 import 'package:flutter_todo_app/util/dialog_box.dart';
@@ -33,30 +32,19 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void getData() async {
-    {
-      List<Map<String, dynamic>> tasks = await db.loadTasks();
-      print('Tasks retrieved: $tasks');
-    }
-  }
-
-  void checkBoxChanged(bool? value, int index) async {
+  void update(
+   String taskid,
+      bool? value, int index, String name, bool isCheckBoxUpdate) async {
     setState(() {
       db.toDoList[index]['completed'] = value;
     });
 
-    await db.updateTask(db.toDoList[index]['id'], value ?? false);
+    await db.updateTask(taskid,
+     value ?? false, name, isCheckBoxUpdate);
   }
 
   void saveNewTask() {
-    bool isValid = EmailValidator.validate(_controller.text);
-    if (isValid) {
-      db.addTask(_controller.text, false);
-      initializeToDoList();
-    } else {
-      const snackbar = SnackBar(content: Text('Invalid email'));
-      ScaffoldMessenger.of(context).showSnackBar(snackbar);
-    }
+    db.addTask(_controller.text, false);
     Navigator.of(context).pop();
     _controller.clear();
   }
@@ -76,74 +64,70 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void deleteTask(int index) {
-    if (index % 2 != 0) {
-      setState(() {
-        db.toDoList.removeAt(index);
-      });
-      db.removeTask(db.toDoList[index]['id']);
-    } else {
-      const snackbar = SnackBar(content: Text('Unable to delete odd'));
-      ScaffoldMessenger.of(context).showSnackBar(snackbar);
-    }
+  void deleteTask(String taskId) {
+    db.removeTask(taskId);
+    setState(() {
+      print('Task deleted');
+      db.toDoList.removeAt;
+    });
   }
 
-  void editTask(int index) {
+  void editTask(int index,String taskId) {
     showDialog(
       context: context,
       builder: (context) {
         return DialogBox(
           controller: _controller,
-          onSave: () => upDate(index),
+          onSave: () => update(taskId,false, index, _controller.text, false),
           onCancel: () => Navigator.of(context).pop(),
         );
       },
     );
   }
 
-  void upDate(int index) {
-    bool isValid = EmailValidator.validate(_controller.text);
-    if (isValid) {
-      db.updateTask(db.toDoList[index]['id'], _controller.text as bool);
-      initializeToDoList();
-      Navigator.of(context).pop();
-    } else {
-      const snackbar = SnackBar(content: Text('Invalid email'));
-      ScaffoldMessenger.of(context).showSnackBar(snackbar);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) {
-      print('this is scaffold');
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    } else {
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: createNewTask,
-          child: const Icon(Icons.add),
-        ),
-        body: ListView.builder(
-            itemCount: db.toDoList.length,
-            itemBuilder: (context, index) {
-              return ToDoTile(
-                onTap: () => editTask(index),
-                taskName: db.toDoList[index][0],
-                taskCompleted: db.toDoList[index][1],
-                onChanged: (value) => checkBoxChanged(value, index),
-                deleteTask: (context) => deleteTask(index),
-              );
-            }),
-      );
-    }
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: createNewTask,
+        child: const Icon(Icons.add),
+      ),
+      body: _isInitialized
+          ? FutureBuilder(
+              future: db.loadTasks(),
+              builder: (context,
+                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else {
+                  List<Map<String, dynamic>> tasks = snapshot.data!;
+
+                  return ListView.builder(
+                    itemCount: tasks.length,
+                    itemBuilder: (context, index) {
+                      
+                      final String id = tasks[index]['id'];
+                      return ToDoTile(
+                        onTap: () => editTask(index,id),
+                        taskName: tasks[index]['name'],
+                        taskCompleted: tasks[index]['completed'],
+                        onChanged: (value) => update(id,value, index, '', true),
+                        deleteTask: (index) => deleteTask(id),
+                      );
+                    },
+                  );
+                }
+              },
+            )
+          : const Center(
+              child: CircularProgressIndicator(),
+            ),
+    );
   }
 }

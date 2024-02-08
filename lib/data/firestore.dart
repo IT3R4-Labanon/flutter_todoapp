@@ -7,23 +7,43 @@ class ToDoDataBase {
   List<Map<String, dynamic>> toDoList = [];
 
   Future<void> initialize() async {
-    print('displaying todo list');
+    {}
   }
 
   Future<List<Map<String, dynamic>>> loadTasks() async {
     QuerySnapshot querySnapshot = await _todoCollection.get();
-    return querySnapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
+    List<Map<String, dynamic>> finalTodo = [];
+
+    for (var myDoc in querySnapshot.docs) {
+      final data = myDoc.data() as Map<String, dynamic>;
+
+      Map<String, dynamic> formattedData = {
+        'id': myDoc.id,
+        'name': data['name'],
+        'completed': data['completed'],
+      };
+
+      finalTodo.add(formattedData);
+    }
+
+    return finalTodo;
   }
 
   Future<void> addTask(String taskName, bool completed) async {
-    print('task added');
     await _todoCollection.add({'name': taskName, 'completed': completed});
   }
 
-  Future<void> updateTask(String taskId, bool completed) async {
-    await _todoCollection.doc(taskId).update({'completed': completed});
+  Future<void> updateTask(
+      String taskId, bool completed, String name, bool isCheckBoxUpdate) async {
+    final Map<String, dynamic> updateData = {};
+    if (isCheckBoxUpdate) {
+      updateData['completed'] = completed;
+    } else {
+      updateData['completed'] = completed;
+      updateData['name'] = name;
+    }
+
+    await _todoCollection.doc(taskId).update(updateData);
   }
 
   Future<void> removeTask(String taskId) async {

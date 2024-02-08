@@ -1,0 +1,80 @@
+import 'dart:convert';
+import 'dart:js_interop';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class ToDoDataBase {
+  final CollectionReference _todoCollection =
+      FirebaseFirestore.instance.collection('todos');
+
+  List<Map<String, dynamic>> toDoList = [];
+
+  Future<void> initialize() async {
+    {
+      print(toDoList);
+    }
+  }
+
+  // print(querySnapshot.docs[0]);
+  // print(querySnapshot.docs[0].id);
+  Future<List<Map<String, dynamic>>> loadTasks() async {
+    QuerySnapshot querySnapshot = await _todoCollection.get();
+    List<Map<String, dynamic>> finalTodo = [];
+
+    querySnapshot.docs.forEach((element) {
+      // looping each document as element
+      var myData = element.data() as Map<String, dynamic>; // mapping the data of element (document) as string , dynamic
+
+      // building my formatted data, checking for nulls and output defaults (COALESCE)
+      Map<String, dynamic> myFormattedData = {
+        'id': element.id,
+        'name': myData['name'] ?? 'No Name',
+        'age': myData['age'] ?? 'No age',
+        'gender': myData['gender'] ?? 'No gender',
+        'completed': myData['completed'] ?? false
+      };
+
+      finalTodo.add(myFormattedData); // adding to my list final todo
+    });
+
+    return finalTodo; // returning final todo
+  }
+
+  Future<void> addTask(String taskName, bool completed) async {
+    print('task added');
+    await _todoCollection.add({'name': taskName, 'completed': completed});
+  }
+
+  Future<void> updateTask(String taskId, bool completed) async {
+    await _todoCollection.doc(taskId).update({'completed': completed});
+  }
+
+  Future<void> removeTask(taskId) async {
+    await _todoCollection.doc(taskId).delete();
+  }
+}
+
+
+
+      // querySnapshot.docs.forEach((element) {
+      //   print(element.data());
+      // });
+
+      // querySnapshot.docs.forEach((element) {
+      //   var myData = {
+      //     'id': element.id,
+      //     'name': element['name'] ?? 'no name',
+      //     'completed': element['completed']
+      //   };
+
+      //   finalTodo.add(myData);
+      // });
+    }
+
+
+      for (var myDoc in querySnapshot.docs) {
+      finalTodo.add({
+        'id': myDoc.id,
+        'name': myDoc['name'],
+        'completed': myDoc['completed']
+      });
